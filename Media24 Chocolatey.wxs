@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='Media24 Chocolatey' Id='99F5F04B-28BB-48F3-BE5F-69C2AA2220A3' UpgradeCode='49E4C32C-1956-47C5-BF48-36A4FA102924'
+    Language='1033' Codepage='1252' Version='1.0.1' Manufacturer='Media24'>
+
+    <Package Id='*' Keywords='Installer' Description="Chocolately Installer"
+      Comments='Installs and configures Chocolatey for M24 clients.' Manufacturer='Media24'
+      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="Chocolatey Installation [1]" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='Scripts' Name='Scripts'>
+        <Component Id='InstallScript' Guid='07090318-6CD5-43BE-A971-F7E953AF07F1'>
+          <File Id='Installer' Name='Choco-Install.ps1' DiskId='1' Source='Choco-Install.ps1' KeyPath='yes' />
+        </Component>
+        <Component Id='UninstallScript' Guid='67F2EA0C-7D8C-400E-A15F-FCDBE791A8DE'>
+          <File Id='Uninstaller' Name='Choco-Uninstall.ps1' DiskId='1' Source='Choco-Uninstall.ps1' KeyPath='yes' />
+        </Component>
+      </Directory>
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='InstallScript' />
+      <ComponentRef Id='UninstallScript' />
+    </Feature>
+    
+    <Property Id="POWERSHELL">Powershell.exe</Property>
+
+    <CustomAction Id='ChocoInstall' Property='POWERSHELL' ExeCommand='C:\Scripts\Choco-Install.ps1' Return='asyncWait' Execute="deferred" Impersonate='no'/>
+    <CustomAction Id='ChocoUninstall' Property='POWERSHELL' ExeCommand='C:\Scripts\Choco-Uninstall.ps1' Return='asyncWait' Execute="deferred" Impersonate='no'/>
+
+    <InstallExecuteSequence>
+      <Custom Action='ChocoInstall' Before='InstallFinalize'>NOT Installed</Custom>
+      <Custom Action='ChocoUninstall' Before='RemoveFiles'>(REMOVE~="ALL") AND (NOT UPGRADINGPRODUCTCODE)</Custom>
+    </InstallExecuteSequence>
+
+  </Product>
+</Wix>
